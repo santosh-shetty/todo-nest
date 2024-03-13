@@ -1,0 +1,96 @@
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>To-do app</title>
+    <style>
+
+      *, *:before, *:after{ margin: 0; padding: 0; box-sizing: border-box; }
+      body{ font-family: 'Poppins', sans-serif; } .container{ width: 100%;
+      min-height: 100vh; background: linear-gradient(135deg, #153677, #4e085f);
+      padding: 10px; display: flex; justify-content: center; align-items:
+      center; } .todo-app{ width: 100%; max-width: 540px; background-color:
+      #fff; padding: 40px 30px 70px; border-radius: 10px; display: flex;
+      flex-direction: column; align-items: left; gap: 2rem; } .app-title{
+      display: flex; gap: 1rem; align-items: center; } .app-title h2, .app-title
+      i{ color: #002765; } .app-title i{ font-size: 26px; } .row{ display: flex;
+      align-items: center; justify-content: space-between; background-color:
+      #edeef0; border-radius: 30px; } input{ width: 100%; border: none; outline:
+      none; background-color: transparent; padding: 12px; font-size: 17px;
+      padding-left: 20px; } button{ border: none; cursor: pointer; outline:
+      none; padding: 15px 50px; border-radius: 30px; background-color: #ff5945;
+      color: #fff; font-size: 18px; transition: all .25s ease; } button:hover{
+      filter: brightness(.8); } @media screen and (max-width: 400px) { button{
+      padding: 15px; border-radius: 0 30px 30px 0; } } ul{ list-style: none; }
+      ul li{ font-size: 17px; padding: 12px 8px 12px 20px; margin-top: 5px;
+      user-select: none; cursor: pointer; position: relative; display: flex;
+      justify-content: space-between; } ul li::before{ position: absolute;
+      content: ''; width: 24px; height: 24px; border-radius: 50%; left: 0;
+      border: 2px solid #ff5945; display: none; } ul .checked{ color: #555; text-decoration:
+      line-through; } ul .checked::before{ background-color: #ff5945; } span {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      width: 30px; height: 30px; border-radius: 50%; display: flex;
+      justify-content: center; align-items: center; color: #555; font-size:
+      18px; transition: all .2s ease; } span:hover{ background-color: #c9c9c9;
+      color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <div class='todo-app'>
+        <div class='app-title'>
+          <h2>To Do App</h2>
+          <i class='fa-solid fa-book-bookmark'></i>
+        </div>
+        <div class='row'>
+          <input type='text' id='input-box' placeholder='add your tasks' />
+          <button id='addBtn'>Add</button>
+        </div>
+        <ul id='list-container'>
+          {{#each todos}}
+            <li>{{this.title}} <button id='deleteBtn' onclick="deleteTodo({{this.id}})">Delete</button></li>
+          {{/each}}
+        </ul>
+      </div>
+    </div>
+    <script>
+      {{!-- For  add new task --}}
+      document.getElementById("addBtn").addEventListener('click',async (event)=>{ 
+        event.preventDefault();
+        const todoText = document.getElementById("input-box").value; 
+        await addNewTodo(todoText);
+      });
+   
+      async function addNewTodo(todoText) {
+        const response = await fetch('http://localhost:3000/todo/add',{
+          method : 'POST',
+          headers : {'Content-Type': 'application/json',},
+          body : JSON.stringify({title : todoText,  isCompleted: false})
+        })
+        if(response.ok){
+            const data = await response.json();
+            document.getElementById('input-box').value = '';
+            
+            location.reload();
+        }
+        else{
+           console.error('Failed to add new todo');
+        }
+      }
+      {{!-- For Delete Todo task --}}
+      async function deleteTodo(id){
+          const response = await fetch(`http://localhost:3000/todo/delete/${id}`,{
+            method : 'DELETE',
+            headers : {'Content-Type': 'application/json',},
+          })
+          if(response.ok){
+          console.log(response);
+              document.getElementById('input-box').value = '';            
+              location.reload();
+          }
+          else{
+            console.error('Failed to add new todo');
+          }
+      };
+    </script>
+  </body>
+</html>
